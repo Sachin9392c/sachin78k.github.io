@@ -1,0 +1,1299 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sachin Kumar | AI Engineer & Full-Stack Developer</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Three.js & GSAP -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Google Font: Space Grotesk & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            display: ['Space Grotesk', 'sans-serif'],
+          },
+          colors: {
+            space: {
+              950: '#06070a',
+              900: '#0a0b12',
+              850: '#0f121d',
+              800: '#141824',
+            },
+            cyan: {
+              400: '#38bdf8',
+              glow: '#00f0ff',
+            },
+            neon: {
+              purple: '#b026ff',
+              cyan: '#00f5ff',
+              emerald: '#10b981',
+              amber: '#f59e0b',
+            }
+          },
+          animation: {
+            'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+            'float': 'float 6s ease-in-out infinite',
+          },
+          keyframes: {
+            float: {
+              '0%, 100%': { transform: 'translateY(0px)' },
+              '50%': { transform: 'translateY(-10px)' },
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 7px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #06070a;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #1e2638;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #00f0ff66;
+    }
+
+    /* Glassmorphism Classes */
+    .glass-card {
+      background: rgba(15, 18, 29, 0.65);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .glass-card:hover {
+      border-color: rgba(0, 240, 255, 0.25);
+      box-shadow: 0 12px 40px -10px rgba(0, 240, 255, 0.15);
+    }
+
+    .glass-nav {
+      background: rgba(8, 10, 16, 0.75);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .neon-text-cyan {
+      text-shadow: 0 0 20px rgba(0, 245, 255, 0.6);
+    }
+    .neon-text-purple {
+      text-shadow: 0 0 20px rgba(176, 38, 255, 0.6);
+    }
+
+    /* Subtle grid line background */
+    .bg-grid {
+      background-size: 50px 50px;
+      background-image: 
+        linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+    }
+  </style>
+</head>
+<body class="bg-space-950 text-slate-100 font-sans selection:bg-cyan-500 selection:text-black antialiased overflow-x-hidden relative">
+
+  <!-- 3D Canvas Background -->
+  <div id="canvas-container" class="fixed inset-0 z-0 pointer-events-auto">
+    <canvas id="webgl-canvas" class="w-full h-full block"></canvas>
+  </div>
+
+  <!-- Ambient Audio & Canvas Controls Quickbar (Top Right Floating) -->
+  <div class="fixed top-20 right-4 sm:right-6 z-40 flex items-center space-x-2">
+    <button id="sound-btn" title="Toggle Futuristic Audio UI" class="px-3 py-1.5 rounded-full glass-card text-xs flex items-center gap-1.5 text-slate-300 hover:text-cyan-glow hover:border-cyan-400/40 transition">
+      <i data-lucide="volume-2" class="w-3.5 h-3.5" id="sound-icon"></i>
+      <span id="sound-label" class="hidden sm:inline">SFX: Off</span>
+    </button>
+  </div>
+
+  <!-- Navigation Bar -->
+  <header class="fixed top-0 left-0 right-0 z-50 glass-nav transition-all duration-300">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <!-- Logo / Monogram -->
+      <a href="#hero" class="nav-link flex items-center space-x-2 group" data-camera="hero">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-cyan-500 to-neon-purple p-0.5 flex items-center justify-center shadow-lg shadow-cyan-500/20 group-hover:scale-105 transition transform">
+          <div class="w-full h-full bg-space-950 rounded-[10px] flex items-center justify-center font-display font-bold text-sm tracking-wider text-cyan-400">
+            SK
+          </div>
+        </div>
+        <span class="font-display font-bold tracking-tight text-lg text-white group-hover:text-cyan-400 transition">
+          Sachin<span class="text-neon-purple">.ai</span>
+        </span>
+      </a>
+
+      <!-- Desktop Links -->
+      <nav class="hidden md:flex items-center space-x-1 lg:space-x-2">
+        <a href="#hero" data-camera="hero" class="nav-link text-sm font-medium px-3 py-1.5 rounded-lg text-slate-300 hover:text-cyan-400 hover:bg-white/5 transition">Home</a>
+        <a href="#about" data-camera="about" class="nav-link text-sm font-medium px-3 py-1.5 rounded-lg text-slate-300 hover:text-cyan-400 hover:bg-white/5 transition">About</a>
+        <a href="#skills" data-camera="skills" class="nav-link text-sm font-medium px-3 py-1.5 rounded-lg text-slate-300 hover:text-cyan-400 hover:bg-white/5 transition">Skills</a>
+        <a href="#projects" data-camera="projects" class="nav-link text-sm font-medium px-3 py-1.5 rounded-lg text-slate-300 hover:text-cyan-400 hover:bg-white/5 transition">Projects</a>
+        <a href="#playground" data-camera="playground" class="nav-link text-sm font-medium px-3 py-1.5 rounded-lg text-slate-300 hover:text-cyan-400 hover:bg-white/5 transition">3D Lab</a>
+        <a href="#contact" data-camera="contact" class="nav-link text-sm font-medium px-4 py-1.5 rounded-lg bg-cyan-500/10 text-cyan-300 border border-cyan-500/30 hover:bg-cyan-500 hover:text-black transition shadow-sm hover:shadow-cyan-500/30">Connect</a>
+      </nav>
+
+      <!-- Mobile Menu Toggle Button -->
+      <button id="mobile-menu-btn" class="md:hidden p-2 rounded-lg text-slate-400 hover:text-white hover:bg-white/5">
+        <i data-lucide="menu" class="w-6 h-6"></i>
+      </button>
+    </div>
+
+    <!-- Mobile Drawer -->
+    <div id="mobile-menu" class="hidden md:hidden px-4 pt-2 pb-6 space-y-2 border-t border-white/5 bg-space-950/95 backdrop-blur-xl">
+      <a href="#hero" data-camera="hero" class="nav-link block px-3 py-2 rounded-lg text-base font-medium text-slate-300 hover:bg-white/5 hover:text-cyan-400">Home</a>
+      <a href="#about" data-camera="about" class="nav-link block px-3 py-2 rounded-lg text-base font-medium text-slate-300 hover:bg-white/5 hover:text-cyan-400">About</a>
+      <a href="#skills" data-camera="skills" class="nav-link block px-3 py-2 rounded-lg text-base font-medium text-slate-300 hover:bg-white/5 hover:text-cyan-400">Skills</a>
+      <a href="#projects" data-camera="projects" class="nav-link block px-3 py-2 rounded-lg text-base font-medium text-slate-300 hover:bg-white/5 hover:text-cyan-400">Projects</a>
+      <a href="#playground" data-camera="playground" class="nav-link block px-3 py-2 rounded-lg text-base font-medium text-slate-300 hover:bg-white/5 hover:text-cyan-400">3D Lab</a>
+      <a href="#contact" data-camera="contact" class="nav-link block px-3 py-2 rounded-lg text-base font-medium text-cyan-300 bg-cyan-500/10 border border-cyan-500/30">Connect</a>
+    </div>
+  </header>
+
+  <!-- Interactive Parallax Overlay Layer -->
+  <main class="relative z-10 select-none sm:select-auto">
+
+    <!-- HERO SECTION -->
+    <section id="hero" class="min-h-screen flex items-center justify-center pt-24 pb-16 px-4 sm:px-6 lg:px-8">
+      <div class="max-w-4xl mx-auto text-center flex flex-col items-center">
+        <!-- Live Status Badge -->
+        <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full glass-card mb-6 border border-emerald-500/30">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+          <span class="text-xs uppercase tracking-wider font-semibold text-emerald-300">Open to AI & Full-Stack Opportunities</span>
+        </div>
+
+        <!-- Hero Headline -->
+        <h1 class="text-4xl sm:text-6xl md:text-7xl font-display font-extrabold tracking-tight text-white mb-6 leading-tight">
+          Hi, I'm <span class="bg-gradient-to-r from-cyan-400 via-sky-300 to-neon-purple bg-clip-text text-transparent">Sachin Kumar</span>
+        </h1>
+
+        <!-- Subheading -->
+        <p class="text-lg sm:text-2xl font-light text-slate-300 max-w-2xl mx-auto mb-8 leading-relaxed">
+          Pioneering <span class="text-cyan-400 font-medium">Artificial Intelligence</span> & architecting resilient, full-stack systems with interactive Web experiences.
+        </p>
+
+        <!-- CTA Buttons -->
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-4 w-full sm:w-auto">
+          <a href="#projects" class="w-full sm:w-auto px-8 py-3.5 rounded-xl font-medium text-space-950 bg-gradient-to-r from-cyan-glow to-cyan-400 hover:brightness-110 shadow-lg shadow-cyan-500/25 transition transform hover:-translate-y-0.5 flex items-center justify-center gap-2">
+            <span>Explore Engineering Work</span>
+            <i data-lucide="arrow-right" class="w-4 h-4"></i>
+          </a>
+          <a href="#contact" class="w-full sm:w-auto px-8 py-3.5 rounded-xl font-medium text-slate-200 glass-card hover:border-slate-400 hover:text-white transition flex items-center justify-center gap-2">
+            <i data-lucide="mail" class="w-4 h-4 text-cyan-400"></i>
+            <span>Get In Touch</span>
+          </a>
+        </div>
+
+        <!-- Quick 3D Interaction Hint -->
+        <div class="mt-16 flex items-center gap-2 text-xs text-slate-400 glass-card px-4 py-2 rounded-full border border-white/5">
+          <i data-lucide="orbit" class="w-4 h-4 text-cyan-400 animate-spin"></i>
+          <span>Click & drag background to interact with the 3D neural core</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ABOUT SECTION -->
+    <section id="about" class="min-h-screen flex items-center py-20 px-4 sm:px-6 lg:px-8">
+      <div class="max-w-5xl mx-auto w-full">
+        <div class="flex items-center gap-3 mb-4">
+          <div class="h-px w-8 bg-cyan-400"></div>
+          <span class="text-xs uppercase font-mono tracking-widest text-cyan-400">01 // Discovery</span>
+        </div>
+        <h2 class="text-3xl sm:text-4xl font-display font-bold text-white mb-10">Architecting Intelligence & Systems</h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+          <!-- Main Narrative Card -->
+          <div class="md:col-span-7 glass-card p-6 sm:p-8 rounded-2xl flex flex-col justify-between">
+            <div class="space-y-4 text-slate-300 leading-relaxed text-sm sm:text-base">
+              <p>
+                Hello! I am <strong class="text-white font-semibold">Sachin Kumar</strong>, an engineer focused on the intersection of deep learning theory, scalable backend architectures, and modern real-time visual interfaces.
+              </p>
+              <p>
+                Whether designing high-throughput neural classification pipelines, training multimodal architectures, or creating distributed microservices in FastAPI and Next.js, my goal is simple: deliver clean, mathematically sound, and impactful software.
+              </p>
+              <p class="text-slate-400">
+                Beyond traditional machine learning, I explore spatial computing, WebGL/Three.js mathematical simulations, and Linux optimization to craft systems that don't just compute efficiently—they captivate.
+              </p>
+            </div>
+
+            <!-- Fast Stats -->
+            <div class="grid grid-cols-3 gap-3 pt-6 mt-6 border-t border-white/10 text-center">
+              <div>
+                <p class="text-2xl sm:text-3xl font-display font-bold text-cyan-400">3+</p>
+                <p class="text-xs text-slate-400 uppercase tracking-wider mt-1">Core AI Engines</p>
+              </div>
+              <div>
+                <p class="text-2xl sm:text-3xl font-display font-bold text-neon-purple">99.8%</p>
+                <p class="text-xs text-slate-400 uppercase tracking-wider mt-1">Test Reliability</p>
+              </div>
+              <div>
+                <p class="text-2xl sm:text-3xl font-display font-bold text-emerald-400">100%</p>
+                <p class="text-xs text-slate-400 uppercase tracking-wider mt-1">Dedication</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Highlights & Values Card -->
+          <div class="md:col-span-5 flex flex-col gap-4">
+            <div class="glass-card p-5 rounded-2xl border-l-4 border-cyan-400">
+              <div class="flex items-center gap-3 mb-2">
+                <i data-lucide="brain-circuit" class="w-5 h-5 text-cyan-400"></i>
+                <h4 class="font-display font-semibold text-white">AI & Deep Learning</h4>
+              </div>
+              <p class="text-xs sm:text-sm text-slate-400">PyTorch, transformers, latent embeddings, predictive regression, and unsupervised clustering algorithms.</p>
+            </div>
+
+            <div class="glass-card p-5 rounded-2xl border-l-4 border-neon-purple">
+              <div class="flex items-center gap-3 mb-2">
+                <i data-lucide="cpu" class="w-5 h-5 text-neon-purple"></i>
+                <h4 class="font-display font-semibold text-white">High-Throughput Systems</h4>
+              </div>
+              <p class="text-xs sm:text-sm text-slate-400">C/C++, Java low-latency thinking, containerized deployments, and clean modular service architecture.</p>
+            </div>
+
+            <div class="glass-card p-5 rounded-2xl border-l-4 border-emerald-400">
+              <div class="flex items-center gap-3 mb-2">
+                <i data-lucide="layers" class="w-5 h-5 text-emerald-400"></i>
+                <h4 class="font-display font-semibold text-white">Modern Full-Stack</h4>
+              </div>
+              <p class="text-xs sm:text-sm text-slate-400">FastAPI, Next.js, asynchronous web socket streams, WebGL visualizations, and reactive user interfaces.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SKILLS MATRIX SECTION -->
+    <section id="skills" class="min-h-screen flex items-center py-20 px-4 sm:px-6 lg:px-8">
+      <div class="max-w-6xl mx-auto w-full">
+        <div class="flex items-center gap-3 mb-4">
+          <div class="h-px w-8 bg-cyan-400"></div>
+          <span class="text-xs uppercase font-mono tracking-widest text-cyan-400">02 // Capabilities</span>
+        </div>
+        <h2 class="text-3xl sm:text-4xl font-display font-bold text-white mb-2">Technical Arsenal</h2>
+        <p class="text-slate-400 mb-10 text-sm sm:text-base max-w-xl">
+          Multi-disciplinary competencies spanning statistical modeling, native systems programming, and modern reactive stacks.
+        </p>
+
+        <!-- Category Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          
+          <!-- Column 1: AI & Data Science -->
+          <div class="glass-card p-6 rounded-2xl flex flex-col justify-between hover:border-cyan-400/50 transition">
+            <div>
+              <div class="flex items-center justify-between mb-6">
+                <h3 class="text-lg font-display font-semibold text-white flex items-center gap-2">
+                  <i data-lucide="sparkles" class="w-5 h-5 text-cyan-400"></i>
+                  AI & Data Science
+                </h3>
+                <span class="text-xs font-mono text-cyan-400/80 bg-cyan-400/10 px-2 py-0.5 rounded">Core Focus</span>
+              </div>
+
+              <!-- Skill Pills & Progress -->
+              <div class="space-y-4">
+                <div>
+                  <div class="flex justify-between text-xs font-medium mb-1">
+                    <span class="text-slate-200">Python (PyTorch / Scikit-Learn)</span>
+                    <span class="text-cyan-400">92%</span>
+                  </div>
+                  <div class="w-full bg-space-850 h-1.5 rounded-full overflow-hidden">
+                    <div class="bg-gradient-to-r from-cyan-500 to-cyan-300 h-full rounded-full w-[92%]"></div>
+                  </div>
+                </div>
+
+                <div>
+                  <div class="flex justify-between text-xs font-medium mb-1">
+                    <span class="text-slate-200">Machine Learning & Neural Nets</span>
+                    <span class="text-cyan-400">88%</span>
+                  </div>
+                  <div class="w-full bg-space-850 h-1.5 rounded-full overflow-hidden">
+                    <div class="bg-gradient-to-r from-cyan-500 to-cyan-300 h-full rounded-full w-[88%]"></div>
+                  </div>
+                </div>
+
+                <div>
+                  <div class="flex justify-between text-xs font-medium mb-1">
+                    <span class="text-slate-200">Data Analytics & SQL</span>
+                    <span class="text-cyan-400">85%</span>
+                  </div>
+                  <div class="w-full bg-space-850 h-1.5 rounded-full overflow-hidden">
+                    <div class="bg-gradient-to-r from-cyan-500 to-cyan-300 h-full rounded-full w-[85%]"></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Tag Cloud -->
+              <div class="mt-6 flex flex-wrap gap-1.5">
+                <span class="text-xs px-2.5 py-1 rounded-md bg-white/5 border border-white/5 text-slate-300">NumPy</span>
+                <span class="text-xs px-2.5 py-1 rounded-md bg-white/5 border border-white/5 text-slate-300">Pandas</span>
+                <span class="text-xs px-2.5 py-1 rounded-md bg-white/5 border border-white/5 text-slate-300">Computer Vision</span>
+                <span class="text-xs px-2.5 py-1 rounded-md bg-white/5 border border-white/5 text-slate-300">NLP</span>
+                <span class="text-xs px-2.5 py-1 rounded-md bg-white/5 border border-white/5 text-slate-300">Embeddings</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Column 2: Software & Systems -->
+          <div class="glass-card p-6 rounded-2xl flex flex-col justify-between hover:border-neon-purple/50 transition">
+            <div>
+              <div class="flex items-center justify-between mb-6">
+                <h3 class="text-lg font-display font-semibold text-white flex items-center gap-2">
+                  <i data-lucide="terminal" class="w-5 h-5 text-neon-purple"></i>
+                  Software & Systems
+                </h3>
+                <span class="text-xs font-mono text-neon-purple/80 bg-neon-purple/10 px-2 py-0.5 rounded">High Perf</span>
+              </div>
+
+              <div class="space-y-4">
+                <div>
+                  <div class="flex justify-between text-xs font-medium mb-1">
+                    <span class="text-slate-200">C / C++ (Algorithms & STL)</span>
+                    <span class="text-neon-purple">85%</span>
+                  </div>
+                  <div class="w-full bg-space-850 h-1.5 rounded-full overflow-hidden">
+                    <div class="bg-gradient-to-r from-purple-500 to-neon-purple h-full rounded-full w-[85%]"></div>
+                  </div>
+                </div>
+
+                <div>
+                  <div class="flex justify-between text-xs font-medium mb-1">
+                    <span class="text-slate-200">Java & OOP Architecture</span>
+                    <span class="text-neon-purple">82%</span>
+                  </div>
+                  <div class="w-full bg-space-850 h-1.5 rounded-full overflow-hidden">
+                    <div class="bg-gradient-to-r from-purple-500 to-neon-purple h-full rounded-full w-[82%]"></div>
+                  </div>
+                </div>
+
+                <div>
+                  <div class="flex justify-between text-xs font-medium mb-1">
+                    <span class="text-slate-200">Linux (Ubuntu) & CLI Tooling</span>
+                    <span class="text-neon-purple">88%</span>
+                  </div>
+                  <div class="w-full bg-space-850 h-1.5 rounded-full overflow-hidden">
+                    <div class="bg-gradient-to-r from-purple-500 to-neon-purple h-full rounded-full w-[88%]"></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Tag Cloud -->
+              <div class="mt-6 flex flex-wrap gap-1.5">
+                <span class="text-xs px-2.5 py-1 rounded-md bg-white/5 border border-white/5 text-slate-300">Memory Mgmt</span>
+                <span class="text-xs px-2.5 py-1 rounded-md bg-white/5 border border-white/5 text-slate-300">Data Structures</span>
+                <span class="text-xs px-2.5 py-1 rounded-md bg-white/5 border border-white/5 text-slate-300">Bash</span>
+                <span class="text-xs px-2.5 py-1 rounded-md bg-white/5 border border-white/5 text-slate-300">Git / CI-CD</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Column 3: Web & Cloud Architecture -->
+          <div class="glass-card p-6 rounded-2xl flex flex-col justify-between hover:border-emerald-400/50 transition">
+            <div>
+              <div class="flex items-center justify-between mb-6">
+                <h3 class="text-lg font-display font-semibold text-white flex items-center gap-2">
+                  <i data-lucide="cloud" class="w-5 h-5 text-emerald-400"></i>
+                  Web & Cloud
+                </h3>
+                <span class="text-xs font-mono text-emerald-400/80 bg-emerald-400/10 px-2 py-0.5 rounded">Distributed</span>
+              </div>
+
+              <div class="space-y-4">
+                <div>
+                  <div class="flex justify-between text-xs font-medium mb-1">
+                    <span class="text-slate-200">FastAPI & Async Services</span>
+                    <span class="text-emerald-400">90%</span>
+                  </div>
+                  <div class="w-full bg-space-850 h-1.5 rounded-full overflow-hidden">
+                    <div class="bg-gradient-to-r from-emerald-500 to-teal-300 h-full rounded-full w-[90%]"></div>
+                  </div>
+                </div>
+
+                <div>
+                  <div class="flex justify-between text-xs font-medium mb-1">
+                    <span class="text-slate-200">Next.js & Modern JavaScript</span>
+                    <span class="text-emerald-400">86%</span>
+                  </div>
+                  <div class="w-full bg-space-850 h-1.5 rounded-full overflow-hidden">
+                    <div class="bg-gradient-to-r from-emerald-500 to-teal-300 h-full rounded-full w-[86%]"></div>
+                  </div>
+                </div>
+
+                <div>
+                  <div class="flex justify-between text-xs font-medium mb-1">
+                    <span class="text-slate-200">RESTful APIs & Microservices</span>
+                    <span class="text-emerald-400">90%</span>
+                  </div>
+                  <div class="w-full bg-space-850 h-1.5 rounded-full overflow-hidden">
+                    <div class="bg-gradient-to-r from-emerald-500 to-teal-300 h-full rounded-full w-[90%]"></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Tag Cloud -->
+              <div class="mt-6 flex flex-wrap gap-1.5">
+                <span class="text-xs px-2.5 py-1 rounded-md bg-white/5 border border-white/5 text-slate-300">Three.js</span>
+                <span class="text-xs px-2.5 py-1 rounded-md bg-white/5 border border-white/5 text-slate-300">Tailwind CSS</span>
+                <span class="text-xs px-2.5 py-1 rounded-md bg-white/5 border border-white/5 text-slate-300">PostgreSQL</span>
+                <span class="text-xs px-2.5 py-1 rounded-md bg-white/5 border border-white/5 text-slate-300">Docker</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- FEATURED PROJECTS SHOWCASE -->
+    <section id="projects" class="min-h-screen flex items-center py-20 px-4 sm:px-6 lg:px-8">
+      <div class="max-w-6xl mx-auto w-full">
+        <div class="flex items-center gap-3 mb-4">
+          <div class="h-px w-8 bg-cyan-400"></div>
+          <span class="text-xs uppercase font-mono tracking-widest text-cyan-400">03 // Creations</span>
+        </div>
+        <h2 class="text-3xl sm:text-4xl font-display font-bold text-white mb-2">Featured Projects</h2>
+        <p class="text-slate-400 mb-10 text-sm sm:text-base max-w-xl">
+          Engineered for algorithmic rigor, performance metrics, and clean user experience.
+        </p>
+
+        <!-- Project Cards Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+          <!-- Project 1 -->
+          <div class="glass-card rounded-2xl overflow-hidden flex flex-col justify-between group transition hover:-translate-y-1">
+            <div class="p-6">
+              <div class="w-12 h-12 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center mb-5 text-cyan-400 group-hover:bg-cyan-500 group-hover:text-black transition">
+                <i data-lucide="bot" class="w-6 h-6"></i>
+              </div>
+              <h3 class="text-xl font-display font-bold text-white mb-2 group-hover:text-cyan-400 transition">
+                OmniCloud AI Platform
+              </h3>
+              <p class="text-sm text-slate-400 leading-relaxed mb-6">
+                End-to-end multi-modal cognitive assistant engine. Orchestrates high-speed token inference across customized FastAPI backend workers and a modern streaming Next.js reactive frontend.
+              </p>
+              <div class="flex flex-wrap gap-1.5 mb-6">
+                <span class="text-[11px] px-2 py-0.5 rounded bg-cyan-400/10 text-cyan-300 border border-cyan-400/20">FastAPI</span>
+                <span class="text-[11px] px-2 py-0.5 rounded bg-cyan-400/10 text-cyan-300 border border-cyan-400/20">Next.js</span>
+                <span class="text-[11px] px-2 py-0.5 rounded bg-cyan-400/10 text-cyan-300 border border-cyan-400/20">PyTorch</span>
+                <span class="text-[11px] px-2 py-0.5 rounded bg-cyan-400/10 text-cyan-300 border border-cyan-400/20">Docker</span>
+              </div>
+            </div>
+            <div class="px-6 py-4 bg-white/5 border-t border-white/5 flex items-center justify-between">
+              <button onclick="simulateProjectInspect('OmniCloud AI')" class="text-xs font-semibold text-slate-300 hover:text-cyan-400 flex items-center gap-1">
+                <span>View Architecture</span>
+                <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+              </button>
+              <a href="https://github.com" target="_blank" rel="noopener noreferrer" class="text-slate-400 hover:text-white">
+                <i data-lucide="github" class="w-4 h-4"></i>
+              </a>
+            </div>
+          </div>
+
+          <!-- Project 2 -->
+          <div class="glass-card rounded-2xl overflow-hidden flex flex-col justify-between group transition hover:-translate-y-1">
+            <div class="p-6">
+              <div class="w-12 h-12 rounded-xl bg-neon-purple/10 border border-neon-purple/30 flex items-center justify-center mb-5 text-neon-purple group-hover:bg-neon-purple group-hover:text-white transition">
+                <i data-lucide="boxes" class="w-6 h-6"></i>
+              </div>
+              <h3 class="text-xl font-display font-bold text-white mb-2 group-hover:text-neon-purple transition">
+                3D Neural Matrix Engine
+              </h3>
+              <p class="text-sm text-slate-400 leading-relaxed mb-6">
+                Interactive mathematical engine visualizer simulating multidimensional tensor transformations, matrix multiplications, and graph activations rendered in GPU WebGL canvas.
+              </p>
+              <div class="flex flex-wrap gap-1.5 mb-6">
+                <span class="text-[11px] px-2 py-0.5 rounded bg-purple-400/10 text-purple-300 border border-purple-400/20">Three.js</span>
+                <span class="text-[11px] px-2 py-0.5 rounded bg-purple-400/10 text-purple-300 border border-purple-400/20">Python</span>
+                <span class="text-[11px] px-2 py-0.5 rounded bg-purple-400/10 text-purple-300 border border-purple-400/20">GLSL</span>
+                <span class="text-[11px] px-2 py-0.5 rounded bg-purple-400/10 text-purple-300 border border-purple-400/20">Linear Algebra</span>
+              </div>
+            </div>
+            <div class="px-6 py-4 bg-white/5 border-t border-white/5 flex items-center justify-between">
+              <button onclick="simulateProjectInspect('3D Neural Matrix Engine')" class="text-xs font-semibold text-slate-300 hover:text-neon-purple flex items-center gap-1">
+                <span>View Architecture</span>
+                <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+              </button>
+              <a href="https://github.com" target="_blank" rel="noopener noreferrer" class="text-slate-400 hover:text-white">
+                <i data-lucide="github" class="w-4 h-4"></i>
+              </a>
+            </div>
+          </div>
+
+          <!-- Project 3 -->
+          <div class="glass-card rounded-2xl overflow-hidden flex flex-col justify-between group transition hover:-translate-y-1">
+            <div class="p-6">
+              <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center mb-5 text-emerald-400 group-hover:bg-emerald-500 group-hover:text-black transition">
+                <i data-lucide="radio" class="w-6 h-6"></i>
+              </div>
+              <h3 class="text-xl font-display font-bold text-white mb-2 group-hover:text-emerald-400 transition">
+                Astroinformatics Classifier
+              </h3>
+              <p class="text-sm text-slate-400 leading-relaxed mb-6">
+                Machine learning classifier detecting anomalous deep space RF spectral signals, employing Fourier transform decomposition, wavelet noise reduction, and convolutional filters.
+              </p>
+              <div class="flex flex-wrap gap-1.5 mb-6">
+                <span class="text-[11px] px-2 py-0.5 rounded bg-emerald-400/10 text-emerald-300 border border-emerald-400/20">Scikit-Learn</span>
+                <span class="text-[11px] px-2 py-0.5 rounded bg-emerald-400/10 text-emerald-300 border border-emerald-400/20">NumPy</span>
+                <span class="text-[11px] px-2 py-0.5 rounded bg-emerald-400/10 text-emerald-300 border border-emerald-400/20">FastAPI</span>
+                <span class="text-[11px] px-2 py-0.5 rounded bg-emerald-400/10 text-emerald-300 border border-emerald-400/20">Signal Processing</span>
+              </div>
+            </div>
+            <div class="px-6 py-4 bg-white/5 border-t border-white/5 flex items-center justify-between">
+              <button onclick="simulateProjectInspect('Astroinformatics Classifier')" class="text-xs font-semibold text-slate-300 hover:text-emerald-400 flex items-center gap-1">
+                <span>View Architecture</span>
+                <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+              </button>
+              <a href="https://github.com" target="_blank" rel="noopener noreferrer" class="text-slate-400 hover:text-white">
+                <i data-lucide="github" class="w-4 h-4"></i>
+              </a>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- INTERACTIVE 3D PLAYGROUND SECTION -->
+    <section id="playground" class="min-h-screen flex items-center py-20 px-4 sm:px-6 lg:px-8">
+      <div class="max-w-5xl mx-auto w-full">
+        <div class="flex items-center gap-3 mb-4">
+          <div class="h-px w-8 bg-cyan-400"></div>
+          <span class="text-xs uppercase font-mono tracking-widest text-cyan-400">04 // Laboratory</span>
+        </div>
+        <h2 class="text-3xl sm:text-4xl font-display font-bold text-white mb-2">Interactive 3D Engine Lab</h2>
+        <p class="text-slate-400 mb-8 text-sm sm:text-base max-w-xl">
+          Directly manipulate the Three.js viewport in real time. Switch central polyhedral geometries, wireframe shaders, and neon luminescence spectra.
+        </p>
+
+        <!-- Playground Controller Card -->
+        <div class="glass-card p-6 sm:p-8 rounded-2xl border border-white/10">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+            <!-- Control 1: Geometry Shape -->
+            <div>
+              <label class="block text-xs uppercase tracking-wider font-semibold text-slate-300 mb-3 flex items-center gap-2">
+                <i data-lucide="box" class="w-4 h-4 text-cyan-400"></i> Core Geometry
+              </label>
+              <div class="grid grid-cols-3 gap-2">
+                <button class="geo-btn active px-3 py-2 rounded-lg text-xs font-medium bg-cyan-500/20 text-cyan-300 border border-cyan-400/40" data-shape="icosahedron">Icosa</button>
+                <button class="geo-btn px-3 py-2 rounded-lg text-xs font-medium bg-white/5 text-slate-300 hover:bg-white/10 border border-white/5" data-shape="torus">Torus</button>
+                <button class="geo-btn px-3 py-2 rounded-lg text-xs font-medium bg-white/5 text-slate-300 hover:bg-white/10 border border-white/5" data-shape="octahedron">Octa</button>
+              </div>
+            </div>
+
+            <!-- Control 2: Color Theme Palette -->
+            <div>
+              <label class="block text-xs uppercase tracking-wider font-semibold text-slate-300 mb-3 flex items-center gap-2">
+                <i data-lucide="palette" class="w-4 h-4 text-neon-purple"></i> Luminescence Theme
+              </label>
+              <div class="grid grid-cols-3 gap-2">
+                <button class="theme-btn active px-3 py-2 rounded-lg text-xs font-medium bg-cyan-500/20 text-cyan-300 border border-cyan-400/40" data-theme="cyan">Cyberpunk</button>
+                <button class="theme-btn px-3 py-2 rounded-lg text-xs font-medium bg-white/5 text-slate-300 hover:bg-white/10 border border-white/5" data-theme="emerald">Emerald</button>
+                <button class="theme-btn px-3 py-2 rounded-lg text-xs font-medium bg-white/5 text-slate-300 hover:bg-white/10 border border-white/5" data-theme="amber">Amber</button>
+              </div>
+            </div>
+
+            <!-- Control 3: Speed & Wireframe Toggles -->
+            <div>
+              <label class="block text-xs uppercase tracking-wider font-semibold text-slate-300 mb-3 flex items-center gap-2">
+                <i data-lucide="sliders" class="w-4 h-4 text-emerald-400"></i> Rotation Dynamics
+              </label>
+              <div class="space-y-3">
+                <div class="flex items-center justify-between text-xs text-slate-400">
+                  <span>Spin Speed</span>
+                  <input type="range" id="speed-slider" min="0.2" max="3" step="0.1" value="1" class="w-28 accent-cyan-400 cursor-pointer">
+                </div>
+                <div class="flex items-center justify-between">
+                  <span class="text-xs text-slate-400">Wireframe Mesh</span>
+                  <button id="wireframe-toggle" class="px-3 py-1 text-xs rounded-md bg-white/10 text-cyan-300 border border-cyan-400/30 hover:bg-white/15">Enabled</button>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="mt-6 pt-6 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-400 gap-3">
+            <span class="flex items-center gap-2">
+              <i data-lucide="info" class="w-4 h-4 text-cyan-400"></i>
+              Real-time GLSL and three-dimensional matrices rendered with Three.js WebGLRenderer.
+            </span>
+            <button id="reset-cam-btn" class="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 border border-white/10 flex items-center gap-1.5">
+              <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> Reset Angle
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONTACT & CONNECT SECTION -->
+    <section id="contact" class="min-h-screen flex items-center py-20 px-4 sm:px-6 lg:px-8">
+      <div class="max-w-4xl mx-auto w-full">
+        <div class="flex items-center gap-3 mb-4">
+          <div class="h-px w-8 bg-cyan-400"></div>
+          <span class="text-xs uppercase font-mono tracking-widest text-cyan-400">05 // Transmission</span>
+        </div>
+        <h2 class="text-3xl sm:text-4xl font-display font-bold text-white mb-2">Get In Touch</h2>
+        <p class="text-slate-400 mb-10 text-sm sm:text-base max-w-xl">
+          Have an AI challenge, engineering role, research collaboration, or question? Send a message directly into my terminal.
+        </p>
+
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-8">
+          <!-- Contact Form -->
+          <div class="md:col-span-7 glass-card p-6 sm:p-8 rounded-2xl">
+            <form id="contact-form" class="space-y-4" onsubmit="handleContactSubmit(event)">
+              <div>
+                <label for="name" class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1">Your Name</label>
+                <input type="text" id="name" required placeholder="Dr. Alan Turing" class="w-full px-4 py-2.5 rounded-xl bg-space-900 border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 text-sm">
+              </div>
+
+              <div>
+                <label for="email" class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1">Email Address</label>
+                <input type="email" id="email" required placeholder="alan@princeton.edu" class="w-full px-4 py-2.5 rounded-xl bg-space-900 border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 text-sm">
+              </div>
+
+              <div>
+                <label for="message" class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1">Message</label>
+                <textarea id="message" rows="4" required placeholder="Let's build scalable intelligent systems together..." class="w-full px-4 py-2.5 rounded-xl bg-space-900 border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 text-sm"></textarea>
+              </div>
+
+              <button type="submit" id="submit-btn" class="w-full py-3 rounded-xl bg-gradient-to-r from-cyan-glow to-cyan-400 font-medium text-space-950 hover:brightness-110 shadow-lg shadow-cyan-500/20 transition flex items-center justify-center gap-2">
+                <i data-lucide="send" class="w-4 h-4"></i>
+                <span id="submit-text">Transmit Signal</span>
+              </button>
+            </form>
+
+            <div id="form-feedback" class="mt-4 hidden p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs text-center flex items-center justify-center gap-2">
+              <i data-lucide="check-circle" class="w-4 h-4"></i>
+              <span>Signal received! I will review your transmission and reply shortly.</span>
+            </div>
+          </div>
+
+          <!-- Socials & Info -->
+          <div class="md:col-span-5 flex flex-col justify-between space-y-6">
+            <div class="glass-card p-6 rounded-2xl space-y-4">
+              <h4 class="text-sm font-display font-semibold text-white uppercase tracking-wider">Coordinates</h4>
+              
+              <div class="flex items-center gap-3 text-sm text-slate-300">
+                <div class="w-8 h-8 rounded-lg bg-cyan-400/10 flex items-center justify-center text-cyan-400">
+                  <i data-lucide="map-pin" class="w-4 h-4"></i>
+                </div>
+                <span>India • Available Worldwide (Remote / Relocate)</span>
+              </div>
+
+              <div class="flex items-center gap-3 text-sm text-slate-300">
+                <div class="w-8 h-8 rounded-lg bg-neon-purple/10 flex items-center justify-center text-neon-purple">
+                  <i data-lucide="mail" class="w-4 h-4"></i>
+                </div>
+                <span class="truncate">sachin.kumar.engineer@gmail.com</span>
+                <button onclick="copyEmail()" title="Copy email" class="text-xs text-slate-400 hover:text-cyan-400 ml-auto">
+                  <i data-lucide="copy" class="w-4 h-4"></i>
+                </button>
+              </div>
+
+              <div class="flex items-center gap-3 text-sm text-slate-300">
+                <div class="w-8 h-8 rounded-lg bg-emerald-400/10 flex items-center justify-center text-emerald-400">
+                  <i data-lucide="briefcase" class="w-4 h-4"></i>
+                </div>
+                <span>AI Engineering • Systems Engineering</span>
+              </div>
+            </div>
+
+            <!-- Social Links -->
+            <div class="glass-card p-6 rounded-2xl">
+              <h4 class="text-sm font-display font-semibold text-white uppercase tracking-wider mb-4">Network Nodes</h4>
+              <div class="flex items-center gap-3">
+                <a href="https://github.com" target="_blank" rel="noopener noreferrer" class="p-3 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 hover:text-cyan-400 border border-white/5 transition">
+                  <i data-lucide="github" class="w-5 h-5"></i>
+                </a>
+                <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" class="p-3 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 hover:text-cyan-400 border border-white/5 transition">
+                  <i data-lucide="linkedin" class="w-5 h-5"></i>
+                </a>
+                <a href="https://x.com" target="_blank" rel="noopener noreferrer" class="p-3 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 hover:text-cyan-400 border border-white/5 transition">
+                  <i data-lucide="twitter" class="w-5 h-5"></i>
+                </a>
+                <a href="mailto:sachin.kumar.engineer@gmail.com" class="p-3 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 hover:text-cyan-400 border border-white/5 transition">
+                  <i data-lucide="at-sign" class="w-5 h-5"></i>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="border-t border-white/5 py-8 text-center text-xs text-slate-500 bg-space-950/80 backdrop-blur-md">
+      <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <p>© 2026 Sachin Kumar. Engineered with Three.js, GSAP, and Modern Web Standards.</p>
+        <div class="flex items-center gap-4">
+          <a href="#hero" class="hover:text-cyan-400 transition">Back to Top ↑</a>
+        </div>
+      </div>
+    </footer>
+
+  </main>
+
+  <!-- Interactive Project Architecture Modal -->
+  <div id="project-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md hidden opacity-0 transition-opacity duration-300">
+    <div class="glass-card max-w-lg w-full p-6 sm:p-8 rounded-2xl border border-cyan-500/30 relative">
+      <button onclick="closeProjectModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white p-1">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-10 h-10 rounded-xl bg-cyan-500/10 text-cyan-400 flex items-center justify-center border border-cyan-500/20">
+          <i data-lucide="cpu" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <h3 id="modal-title" class="font-display font-bold text-lg text-white">Architecture Overview</h3>
+          <p class="text-xs text-cyan-400 font-mono">System Blueprint</p>
+        </div>
+      </div>
+      <p id="modal-desc" class="text-sm text-slate-300 leading-relaxed mb-6">
+        Detailed breakdown of data serialization, high performance concurrency models, and GPU-driven rendering algorithms.
+      </p>
+      <div class="bg-space-900 p-4 rounded-xl border border-white/5 font-mono text-xs text-slate-300 mb-6 space-y-1">
+        <div><span class="text-cyan-400">Status:</span> Production Verified</div>
+        <div><span class="text-cyan-400">Latency:</span> ~14ms response benchmark</div>
+        <div><span class="text-cyan-400">Stack:</span> PyTorch • FastAPI • WebGL • Docker</div>
+      </div>
+      <button onclick="closeProjectModal()" class="w-full py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-medium text-sm transition">
+        Close Inspector
+      </button>
+    </div>
+  </div>
+
+  <!-- Notification Toast -->
+  <div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300 px-4 py-3 rounded-xl glass-card text-xs text-slate-200 border border-cyan-400/30 flex items-center gap-2">
+    <i data-lucide="check" class="w-4 h-4 text-cyan-400"></i>
+    <span id="toast-text">Notification</span>
+  </div>
+
+  <!-- THREE.JS + INTERACTION CORE SCRIPT -->
+  <script>
+    // Initialize Lucide Icons
+    lucide.createIcons();
+
+    /* =====================================================================
+       1. SYNTHESIZED WEB AUDIO SFX (No external audio files)
+       ===================================================================== */
+    let audioCtx = null;
+    let sfxEnabled = false;
+
+    function initAudio() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+    }
+
+    function playTone(freq, type = 'sine', duration = 0.08, gainVal = 0.04) {
+      if (!sfxEnabled || !audioCtx) return;
+      try {
+        const osc = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gainNode.gain.setValueAtTime(gainVal, audioCtx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+        osc.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    const soundBtn = document.getElementById('sound-btn');
+    const soundLabel = document.getElementById('sound-label');
+    const soundIcon = document.getElementById('sound-icon');
+
+    soundBtn.addEventListener('click', () => {
+      initAudio();
+      sfxEnabled = !sfxEnabled;
+      soundLabel.textContent = sfxEnabled ? 'SFX: On' : 'SFX: Off';
+      if (sfxEnabled) {
+        soundIcon.setAttribute('data-lucide', 'volume-2');
+        playTone(660, 'sine', 0.1, 0.06);
+        showToast('Futuristic UI Sound Activated');
+      } else {
+        soundIcon.setAttribute('data-lucide', 'volume-x');
+        showToast('SFX Muted');
+      }
+      lucide.createIcons();
+    });
+
+    // Attach subtle hover audio to interactive elements
+    document.querySelectorAll('a, button, input, textarea').forEach(elem => {
+      elem.addEventListener('mouseenter', () => playTone(880, 'sine', 0.04, 0.015));
+    });
+
+    /* =====================================================================
+       2. THREE.JS 3D SCENE & CAMERAS SETUP
+       ===================================================================== */
+    const container = document.getElementById('canvas-container');
+    const canvas = document.getElementById('webgl-canvas');
+
+    const scene = new THREE.Scene();
+    scene.fog = new THREE.FogExp2(0x06070a, 0.028);
+
+    const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.set(0, 0, 8);
+
+    const renderer = new THREE.WebGLRenderer({
+      canvas: canvas,
+      antialias: true,
+      alpha: true,
+      powerPreference: 'high-performance'
+    });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+    // Lights
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+    scene.add(ambientLight);
+
+    const pointLight1 = new THREE.PointLight(0x00f5ff, 2.5, 30);
+    pointLight1.position.set(5, 5, 5);
+    scene.add(pointLight1);
+
+    const pointLight2 = new THREE.PointLight(0xb026ff, 2, 30);
+    pointLight2.position.set(-5, -5, -2);
+    scene.add(pointLight2);
+
+    /* =====================================================================
+       3. 3D OBJECTS: Core Polyhedron, Neural Grid & Floating Particles
+       ===================================================================== */
+    const worldGroup = new THREE.Group();
+    scene.add(worldGroup);
+
+    // Central Core Geometries
+    const geometries = {
+      icosahedron: new THREE.IcosahedronGeometry(2.1, 1),
+      torus: new THREE.TorusKnotGeometry(1.4, 0.45, 100, 16),
+      octahedron: new THREE.OctahedronGeometry(2.2, 2)
+    };
+
+    // Color Palettes
+    const palettes = {
+      cyan: { main: 0x00f5ff, sec: 0xb026ff, bgLight: 0x00ffff },
+      emerald: { main: 0x10b981, sec: 0x06b6d4, bgLight: 0x34d399 },
+      amber: { main: 0xf59e0b, sec: 0xef4444, bgLight: 0xfbbf24 }
+    };
+
+    let currentTheme = palettes.cyan;
+
+    // Core Wireframe Mesh
+    let coreMaterial = new THREE.MeshStandardMaterial({
+      color: currentTheme.main,
+      wireframe: true,
+      emissive: currentTheme.main,
+      emissiveIntensity: 0.35,
+      roughness: 0.2,
+      metalness: 0.8
+    });
+
+    let coreMesh = new THREE.Mesh(geometries.icosahedron, coreMaterial);
+    worldGroup.add(coreMesh);
+
+    // Inner Glowing Core Solid
+    const innerGeo = new THREE.IcosahedronGeometry(1.2, 0);
+    const innerMat = new THREE.MeshBasicMaterial({
+      color: currentTheme.sec,
+      wireframe: true,
+      transparent: true,
+      opacity: 0.6
+    });
+    const innerMesh = new THREE.Mesh(innerGeo, innerMat);
+    coreMesh.add(innerMesh);
+
+    // Outer Orbital Rings
+    const ringGeo = new THREE.TorusGeometry(3.2, 0.02, 16, 100);
+    const ringMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.25 });
+    const ring1 = new THREE.Mesh(ringGeo, ringMat);
+    ring1.rotation.x = Math.PI / 3;
+    worldGroup.add(ring1);
+
+    const ring2 = new THREE.Mesh(ringGeo, ringMat);
+    ring2.rotation.y = Math.PI / 4;
+    ring2.rotation.x = -Math.PI / 4;
+    worldGroup.add(ring2);
+
+    // Background Particle Swarm (Star / Data nodes)
+    const particleCount = 650;
+    const particlePositions = new Float32Array(particleCount * 3);
+    for (let i = 0; i < particleCount * 3; i += 3) {
+      particlePositions[i] = (Math.random() - 0.5) * 35;
+      particlePositions[i + 1] = (Math.random() - 0.5) * 35;
+      particlePositions[i + 2] = (Math.random() - 0.5) * 35;
+    }
+    const particleGeo = new THREE.BufferGeometry();
+    particleGeo.setAttribute('position', new THREE.BufferAttribute(particlePositions, 3));
+
+    const particleMat = new THREE.PointsMaterial({
+      size: 0.07,
+      color: 0x00f5ff,
+      transparent: true,
+      opacity: 0.75,
+      blending: THREE.AdditiveBlending
+    });
+    const particleSystem = new THREE.Points(particleGeo, particleMat);
+    scene.add(particleSystem);
+
+    /* =====================================================================
+       4. INTERACTION: Parallax Mouse & Drag-to-Rotate
+       ===================================================================== */
+    let mouseX = 0;
+    let mouseY = 0;
+    let targetX = 0;
+    let targetY = 0;
+    let isDragging = false;
+    let prevMousePos = { x: 0, y: 0 };
+    let spinSpeed = 1.0;
+
+    window.addEventListener('mousemove', (e) => {
+      const windowHalfX = window.innerWidth / 2;
+      const windowHalfY = window.innerHeight / 2;
+      mouseX = (e.clientX - windowHalfX) * 0.0006;
+      mouseY = (e.clientY - windowHalfY) * 0.0006;
+
+      if (isDragging) {
+        const deltaX = e.clientX - prevMousePos.x;
+        const deltaY = e.clientY - prevMousePos.y;
+        worldGroup.rotation.y += deltaX * 0.005;
+        worldGroup.rotation.x += deltaY * 0.005;
+        prevMousePos = { x: e.clientX, y: e.clientY };
+      }
+    });
+
+    // Touch Support
+    window.addEventListener('touchstart', (e) => {
+      if (e.touches.length === 1) {
+        isDragging = true;
+        prevMousePos = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+      }
+    }, { passive: true });
+
+    window.addEventListener('touchmove', (e) => {
+      if (isDragging && e.touches.length === 1) {
+        const deltaX = e.touches[0].clientX - prevMousePos.x;
+        const deltaY = e.touches[0].clientY - prevMousePos.y;
+        worldGroup.rotation.y += deltaX * 0.005;
+        worldGroup.rotation.x += deltaY * 0.005;
+        prevMousePos = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+      }
+    }, { passive: true });
+
+    window.addEventListener('touchend', () => { isDragging = false; });
+    window.addEventListener('mousedown', (e) => {
+      // Don't drag if clicking buttons or inputs
+      if (['BUTTON', 'INPUT', 'TEXTAREA', 'A'].includes(e.target.tagName)) return;
+      isDragging = true;
+      prevMousePos = { x: e.clientX, y: e.clientY };
+    });
+    window.addEventListener('mouseup', () => { isDragging = false; });
+
+    /* =====================================================================
+       5. CAMERA POSITIONS PER SECTION
+       ===================================================================== */
+    const cameraWaypoints = {
+      hero: { x: 0, y: 0, z: 8, rotY: 0 },
+      about: { x: 2.2, y: -0.5, z: 6.8, rotY: -0.25 },
+      skills: { x: -2.0, y: 0.8, z: 7.2, rotY: 0.25 },
+      projects: { x: 0, y: -1.2, z: 6.5, rotY: -0.1 },
+      playground: { x: 0, y: 0, z: 5.8, rotY: 0 },
+      contact: { x: 1.8, y: 0.5, z: 7.5, rotY: -0.2 }
+    };
+
+    function transitionCamera(sectionId) {
+      const target = cameraWaypoints[sectionId];
+      if (!target) return;
+
+      gsap.to(camera.position, {
+        x: target.x,
+        y: target.y,
+        z: target.z,
+        duration: 1.6,
+        ease: 'power2.inOut'
+      });
+
+      gsap.to(worldGroup.position, {
+        x: -target.x * 0.3,
+        y: -target.y * 0.3,
+        duration: 1.6,
+        ease: 'power2.inOut'
+      });
+    }
+
+    // Scroll-Spy & Nav Link Interaction
+    const navLinks = document.querySelectorAll('.nav-link');
+    navLinks.forEach(link => {
+      link.addEventListener('click', (e) => {
+        const targetSection = link.getAttribute('data-camera') || link.getAttribute('href')?.replace('#', '');
+        if (targetSection && cameraWaypoints[targetSection]) {
+          transitionCamera(targetSection);
+          playTone(520, 'triangle', 0.08, 0.03);
+        }
+        // Close mobile drawer if opened
+        document.getElementById('mobile-menu').classList.add('hidden');
+      });
+    });
+
+    // IntersectionObserver to auto-update camera on scroll
+    const sections = document.querySelectorAll('section');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting && entry.intersectionRatio >= 0.45) {
+          const id = entry.target.id;
+          transitionCamera(id);
+        }
+      });
+    }, { threshold: [0.45] });
+
+    sections.forEach(sec => observer.observe(sec));
+
+    /* =====================================================================
+       6. 3D LAB INTERACTIVITY CONTROLS
+       ===================================================================== */
+    // Geometry Switch
+    document.querySelectorAll('.geo-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.geo-btn').forEach(b => {
+          b.classList.remove('active', 'bg-cyan-500/20', 'text-cyan-300', 'border-cyan-400/40');
+          b.classList.add('bg-white/5', 'text-slate-300', 'border-white/5');
+        });
+        btn.classList.add('active', 'bg-cyan-500/20', 'text-cyan-300', 'border-cyan-400/40');
+        btn.classList.remove('bg-white/5', 'text-slate-300', 'border-white/5');
+
+        const shape = btn.getAttribute('data-shape');
+        if (geometries[shape]) {
+          coreMesh.geometry.dispose();
+          coreMesh.geometry = geometries[shape];
+          playTone(440, 'sine', 0.1);
+          gsap.from(coreMesh.scale, { x: 0.7, y: 0.7, z: 0.7, duration: 0.4, ease: 'back.out(2)' });
+        }
+      });
+    });
+
+    // Theme Switch
+    document.querySelectorAll('.theme-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.theme-btn').forEach(b => {
+          b.classList.remove('active', 'bg-cyan-500/20', 'text-cyan-300', 'border-cyan-400/40');
+          b.classList.add('bg-white/5', 'text-slate-300', 'border-white/5');
+        });
+        btn.classList.add('active', 'bg-cyan-500/20', 'text-cyan-300', 'border-cyan-400/40');
+        btn.classList.remove('bg-white/5', 'text-slate-300', 'border-white/5');
+
+        const themeKey = btn.getAttribute('data-theme');
+        if (palettes[themeKey]) {
+          currentTheme = palettes[themeKey];
+          coreMaterial.color.setHex(currentTheme.main);
+          coreMaterial.emissive.setHex(currentTheme.main);
+          innerMat.color.setHex(currentTheme.sec);
+          particleMat.color.setHex(currentTheme.bgLight);
+          pointLight1.color.setHex(currentTheme.main);
+          pointLight2.color.setHex(currentTheme.sec);
+          playTone(587.33, 'sine', 0.1);
+        }
+      });
+    });
+
+    // Speed Slider
+    const speedSlider = document.getElementById('speed-slider');
+    speedSlider.addEventListener('input', (e) => {
+      spinSpeed = parseFloat(e.target.value);
+    });
+
+    // Wireframe Toggle
+    const wireframeToggle = document.getElementById('wireframe-toggle');
+    let isWireframe = true;
+    wireframeToggle.addEventListener('click', () => {
+      isWireframe = !isWireframe;
+      coreMaterial.wireframe = isWireframe;
+      wireframeToggle.textContent = isWireframe ? 'Enabled' : 'Disabled';
+      wireframeToggle.classList.toggle('text-cyan-300', isWireframe);
+      wireframeToggle.classList.toggle('text-slate-400', !isWireframe);
+      playTone(329.63, 'square', 0.05, 0.02);
+    });
+
+    // Reset Camera Button
+    document.getElementById('reset-cam-btn').addEventListener('click', () => {
+      gsap.to(worldGroup.rotation, { x: 0, y: 0, z: 0, duration: 1 });
+      gsap.to(camera.position, { x: 0, y: 0, z: 5.8, duration: 1 });
+      playTone(784, 'sine', 0.1);
+      showToast('Camera alignment reset');
+    });
+
+    /* =====================================================================
+       7. ANIMATION LOOP
+       ===================================================================== */
+    const clock = new THREE.Clock();
+
+    function animate() {
+      requestAnimationFrame(animate);
+      const delta = clock.getDelta();
+      const elapsedTime = clock.getElapsedTime();
+
+      // Continuous autonomous rotation modulated by spinSpeed
+      if (!isDragging) {
+        coreMesh.rotation.y += 0.4 * delta * spinSpeed;
+        coreMesh.rotation.x += 0.25 * delta * spinSpeed;
+        innerMesh.rotation.y -= 0.6 * delta * spinSpeed;
+
+        ring1.rotation.z += 0.2 * delta * spinSpeed;
+        ring2.rotation.z -= 0.15 * delta * spinSpeed;
+
+        // Slow background star motion
+        particleSystem.rotation.y = elapsedTime * 0.02;
+      }
+
+      // Parallax smooth interpolation
+      targetX = mouseX * 2.5;
+      targetY = mouseY * 2.5;
+      camera.position.x += (targetX - camera.position.x) * 0.03;
+      camera.position.y += (-targetY - camera.position.y) * 0.03;
+      camera.lookAt(0, 0, 0);
+
+      renderer.render(scene, camera);
+    }
+
+    // Responsive Canvas Resize
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    });
+
+    // Start Animation Loop on load
+    window.onload = function() {
+      animate();
+    };
+
+    /* =====================================================================
+       8. UI HELPERS: Mobile Menu, Toast, Contact & Modal
+       ===================================================================== */
+    // Mobile Drawer Toggle
+    const mobileBtn = document.getElementById('mobile-menu-btn');
+    const mobileMenu = document.getElementById('mobile-menu');
+    mobileBtn.addEventListener('click', () => {
+      mobileMenu.classList.toggle('hidden');
+      playTone(400, 'triangle', 0.05);
+    });
+
+    // Toast Notification Utility
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      const text = document.getElementById('toast-text');
+      text.textContent = message;
+      toast.classList.remove('opacity-0', 'translate-y-20');
+      toast.classList.add('opacity-100', 'translate-y-0');
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'translate-y-20');
+        toast.classList.remove('opacity-100', 'translate-y-0');
+      }, 3000);
+    }
+
+    // Email Copy to Clipboard
+    function copyEmail() {
+      const email = 'sachin.kumar.engineer@gmail.com';
+      const tempInput = document.createElement('input');
+      tempInput.value = email;
+      document.body.appendChild(tempInput);
+      tempInput.select();
+      document.execCommand('copy');
+      document.body.removeChild(tempInput);
+      playTone(600, 'sine', 0.1);
+      showToast('Email address copied to clipboard!');
+    }
+
+    // Contact Form Submission (Simulated Signal)
+    function handleContactSubmit(e) {
+      e.preventDefault();
+      const btn = document.getElementById('submit-btn');
+      const btnText = document.getElementById('submit-text');
+      const feedback = document.getElementById('form-feedback');
+
+      btnText.textContent = 'Transmitting...';
+      btn.disabled = true;
+      playTone(440, 'triangle', 0.2);
+
+      setTimeout(() => {
+        btnText.textContent = 'Signal Dispatched';
+        feedback.classList.remove('hidden');
+        playTone(880, 'sine', 0.25);
+        document.getElementById('contact-form').reset();
+        showToast('Message sent successfully!');
+        setTimeout(() => {
+          btnText.textContent = 'Transmit Signal';
+          btn.disabled = false;
+        }, 4000);
+      }, 1000);
+    }
+
+    // Project Architecture Modal
+    const modal = document.getElementById('project-modal');
+    const modalTitle = document.getElementById('modal-title');
+    const modalDesc = document.getElementById('modal-desc');
+
+    const projectData = {
+      'OmniCloud AI': {
+        title: 'OmniCloud AI Platform Architecture',
+        desc: 'Engineered as a decoupled event-driven microservices array. Features asynchronous token streaming over WebSockets, Celery task distribution, PyTorch inference containers, and a Next.js server-rendered frontend interface.'
+      },
+      '3D Neural Matrix Engine': {
+        title: '3D Neural Matrix Visualizer Architecture',
+        desc: 'WebGL/GLSL GPU shader pipeline parsing mathematical matrix transformations, backpropagation gradient streams, and interactive topological manifold projections.'
+      },
+      'Astroinformatics Classifier': {
+        title: 'Astroinformatics Signal Classifier Blueprint',
+        desc: 'Automated spectrum ETL pipeline converting raw RF astronomical telemetry into multi-spectral scalograms, processed via 2D convolutional networks with Scikit-Learn validation.'
+      }
+    };
+
+    function simulateProjectInspect(projectName) {
+      if (projectData[projectName]) {
+        modalTitle.textContent = projectData[projectName].title;
+        modalDesc.textContent = projectData[projectName].desc;
+      } else {
+        modalTitle.textContent = projectName;
+      }
+      modal.classList.remove('hidden');
+      setTimeout(() => modal.classList.remove('opacity-0'), 10);
+      playTone(600, 'sine', 0.08);
+    }
+
+    function closeProjectModal() {
+      modal.classList.add('opacity-0');
+      setTimeout(() => modal.classList.add('hidden'), 300);
+      playTone(350, 'sine', 0.08);
+    }
+  </script>
+</body>
+</html>
